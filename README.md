@@ -1,0 +1,2 @@
+# GenerateSharedAccessSignatures
+GenerateSharedAccessSignatures

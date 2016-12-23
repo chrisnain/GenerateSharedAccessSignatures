@@ -34,6 +34,16 @@
 			Console.WriteLine("Blob SAS URI: " + sasBlobUri);
 			Console.WriteLine();
 
+			// Clear any existing access policies on container.
+			var permissions = blobContainer.GetPermissions();
+			permissions.SharedAccessPolicies.Clear();
+			blobContainer.SetPermissions(permissions);
+
+			// Create a new access policy on the container, which may be optionally used to provide constraints for
+			// shared access signatures on the container and the blob.
+			const string SharedAccessPolicyName = "tutorialpolicy";
+			CreateSharedAccessPolicy(blobClient, blobContainer, SharedAccessPolicyName);
+
 			// Require user input before closing the console window.
 			Console.ReadLine();
 		}
@@ -85,6 +95,23 @@
 
 			// Return the URI string for the container, including the SAS token.
 			return blob.Uri + sasBlobToken;
+		}
+
+		static void CreateSharedAccessPolicy(CloudBlobClient blobClient, CloudBlobContainer blobContainer, string policyName)
+		{
+			// Create a new shared access policy and define its constraints.
+			var sharedPolicy = new SharedAccessBlobPolicy()
+			{
+				SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
+				Permissions = SharedAccessBlobPermissions.Write | SharedAccessBlobPermissions.List | SharedAccessBlobPermissions.Read
+			};
+
+			// Get the containers existing permissions.
+			var permissions = blobContainer.GetPermissions();
+
+			// Add the new policy to the containers permissions, and set the containers permissions.
+			permissions.SharedAccessPolicies.Add(policyName, sharedPolicy);
+			blobContainer.SetPermissions(permissions);
 		}
 	}
 }

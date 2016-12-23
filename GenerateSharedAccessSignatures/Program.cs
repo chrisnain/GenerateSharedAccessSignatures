@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.IO;
+	using System.Text;
 	using Microsoft.Azure;
 	using Microsoft.WindowsAzure;
 	using Microsoft.WindowsAzure.Storage;
@@ -28,6 +29,11 @@
 			Console.WriteLine("Container SAS URI: " + sasUri);
 			Console.WriteLine();
 
+			// Generate a SAS URI for a blob within the container, without a stored access policy.
+			var sasBlobUri = GetBlobSasUri(blobContainer);
+			Console.WriteLine("Blob SAS URI: " + sasBlobUri);
+			Console.WriteLine();
+
 			// Require user input before closing the console window.
 			Console.ReadLine();
 		}
@@ -47,6 +53,38 @@
 
 			// Return the URE string for the container, including  the SAS token.
 			return blobContainer.Uri + sasContainerToken;
+		}
+
+		static string GetBlobSasUri(CloudBlobContainer blobContainer)
+		{
+			// Get a reference to a blob within the container.
+			var blob = blobContainer.GetBlockBlobReference("sasblob.txt");
+
+			// Upload text to the blob. If the blob does not yet exist, is will be created.
+			// If the blob does exist, its existing content will be overwritten.
+			const string BlobContent = "This blob will be accessible to clients via a Shared Access Signature.";
+			var stream = new MemoryStream(Encoding.UTF8.GetBytes(BlobContent)) { Position = 0 };
+
+			using (stream)
+			{
+				blob.UploadFromStream(stream);
+			}
+
+			// Set the expiry time and permissions for the blob.
+			// In this case the start time is specified as a few minutes in the past, to mitigate clock skew.
+			// The shared access signature will be valid immediately.
+			var sasContraints = new SharedAccessBlobPolicy
+			{
+				SharedAccessStartTime = DateTime.UtcNow.AddMinutes(-5),
+				SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
+				Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Write
+			};
+
+			// Generate the shared access signature on the blob, setting the constraints directly on the signature.
+			var sasBlobToken = blob.GetSharedAccessSignature(sasContraints);
+
+			// Return the URI string for the container, including the SAS token.
+			return blob.Uri + sasBlobToken;
 		}
 	}
 }

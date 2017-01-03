@@ -241,3 +241,4 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /GenerateSharedAccessSignatures/App.config
+/ConsumeSharedAccessSignatures/App.config

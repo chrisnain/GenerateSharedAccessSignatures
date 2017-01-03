@@ -24,6 +24,10 @@
 			UseContainerSas(ContainerSas);
 			UseContainerSas(ContainerSasWithAccessPolicy);
 
+			// Call the test methods with the shared access signatures created on the blob, with and without the access policy.
+			UseBlobSas(BlobSas);
+			UseBlobSas(BlobSasWithAccessPolicy);
+
 			Console.ReadLine();
 		}
 
@@ -101,6 +105,81 @@
 			try
 			{
 				var blob = blobContainer.GetBlockBlobReference(((ICloudBlob)blobList[0]).Name);
+				blob.Delete();
+
+				Console.WriteLine("Delete operation succeeded for SAS " + sas);
+				Console.WriteLine();
+			}
+			catch (StorageException exception)
+			{
+				Console.WriteLine("Delete operation failed for SAS " + sas);
+				Console.WriteLine("Addition error information: " + exception.Message);
+				Console.WriteLine();
+			}
+		}
+
+		static void UseBlobSas(string sas)
+		{
+			// Try performing blob operations using the SAS provided.
+
+			// Return a reference to the blob using the SAS URI.
+			var blob = new CloudBlockBlob(new Uri(sas));
+
+			// Write operation: write a new blob to the container.
+			try
+			{
+				const string BlobContent = "This blob was created with a shared access signature granting write permissions to the blob. ";
+				var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(BlobContent)) { Position = 0 };
+
+				using (memoryStream)
+				{
+					blob.UploadFromStream(memoryStream);
+				}
+
+				Console.WriteLine("Write operation succeeded for SAS " + sas);
+				Console.WriteLine();
+			}
+			catch (StorageException exception)
+			{
+				Console.WriteLine("Write operation failed for SAS " + sas);
+				Console.WriteLine("Addition error information: " + exception.Message);
+				Console.WriteLine();
+			}
+
+			// Read operation: Read the content of the blob.
+			try
+			{
+				var memoryStream = new MemoryStream();
+
+				using (memoryStream)
+				{
+					blob.DownloadToStream(memoryStream);
+					memoryStream.Position = 0;
+
+					using (var reader = new StreamReader(memoryStream, true))
+					{
+						string line;
+						while ((line = reader.ReadLine()) != null)
+						{
+							Console.WriteLine(line);
+						}
+					}
+
+				}
+
+				Console.WriteLine("Read operation succeeded for SAS " + sas);
+				Console.WriteLine();
+			}
+			catch (StorageException exception)
+			{
+				Console.WriteLine("Read operation failed for SAS " + sas);
+				Console.WriteLine("Addition error information: " + exception.Message);
+				Console.WriteLine();
+			}
+
+			// Delete operation: Delete the blob.
+			try
+			{
 				blob.Delete();
 
 				Console.WriteLine("Delete operation succeeded for SAS " + sas);

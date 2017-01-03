@@ -4,7 +4,6 @@
 	using System.IO;
 	using System.Text;
 	using Microsoft.Azure;
-	using Microsoft.WindowsAzure;
 	using Microsoft.WindowsAzure.Storage;
 	using Microsoft.WindowsAzure.Storage.Blob;
 
@@ -43,6 +42,11 @@
 			// shared access signatures on the container and the blob.
 			const string SharedAccessPolicyName = "tutorialpolicy";
 			CreateSharedAccessPolicy(blobClient, blobContainer, SharedAccessPolicyName);
+
+			// Generate a SAS URI for the container, using a stored access policy to set constraints on the SAS.
+			var sasBlobContainerUri = GetContainerSasUriWithPolicy(blobContainer, SharedAccessPolicyName);
+			Console.WriteLine("Container SAS URI using stored access policy: " + sasBlobContainerUri);
+			Console.WriteLine();
 
 			// Require user input before closing the console window.
 			Console.ReadLine();
@@ -112,6 +116,16 @@
 			// Add the new policy to the containers permissions, and set the containers permissions.
 			permissions.SharedAccessPolicies.Add(policyName, sharedPolicy);
 			blobContainer.SetPermissions(permissions);
+		}
+
+		static string GetContainerSasUriWithPolicy(CloudBlobContainer blobContainer, string policyName)
+		{
+			// Generate the shared access signature on the container. In this case, all of the constraints for the
+			// shared access signature are specified on the stored access policy.
+			var sasContainerToken = blobContainer.GetSharedAccessSignature(null, policyName);
+
+			// Return the URI string for the container, including the SAS token.
+			return blobContainer.Uri + sasContainerToken;
 		}
 	}
 }

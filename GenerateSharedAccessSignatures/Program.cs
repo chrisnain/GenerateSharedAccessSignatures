@@ -48,6 +48,11 @@
 			Console.WriteLine("Container SAS URI using stored access policy: " + sasBlobContainerUri);
 			Console.WriteLine();
 
+			// Generate a SAS URI for a blob within the container, using a stored access policy to set constraints on the SAS.
+			var sasBlobUriWithStoredAccess = GetBlobSasUriWithPolicy(blobContainer, SharedAccessPolicyName);
+			Console.WriteLine("Blob SAS URI using stored access policy: " + sasBlobUriWithStoredAccess);
+			Console.WriteLine();
+
 			// Require user input before closing the console window.
 			Console.ReadLine();
 		}
@@ -126,6 +131,30 @@
 
 			// Return the URI string for the container, including the SAS token.
 			return blobContainer.Uri + sasContainerToken;
+		}
+
+		static string GetBlobSasUriWithPolicy(CloudBlobContainer blobContainer, string policyName)
+		{
+			// Get a reference to a blob within the container.
+			var blob = blobContainer.GetBlockBlobReference("sasblobpolicy.txt");
+
+			// Upload text to the blob. If the blob does not yet exist, it will be created.
+			// If the blob does exist, its existing content will be overwritten.
+			const string BlobContent = "This blob will be accessible to clients via a shared access signature. "
+										+ "A stored access policy defines the constraints for the signature.";
+
+			var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(BlobContent)) { Position = 0 };
+
+			using (memoryStream)
+			{
+				blob.UploadFromStream(memoryStream);
+			}
+
+			// Generate the shared access signature on the blob.
+			var sasBlobToken = blob.GetSharedAccessSignature(null, policyName);
+
+			// Return the URI for the container, including the SAS token.
+			return blob.Uri + sasBlobToken;
 		}
 	}
 }

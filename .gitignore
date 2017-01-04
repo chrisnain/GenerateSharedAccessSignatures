@@ -242,3 +242,4 @@ ModelManifest.xml
 .fake/
 /GenerateSharedAccessSignatures/App.config
 /ConsumeSharedAccessSignatures/App.config
+/FileCompressor/App.config

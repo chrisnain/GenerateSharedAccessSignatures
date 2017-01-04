@@ -9,7 +9,7 @@
 
 	class Program
 	{
-		static void Main(string[] args)
+		static void Main()
 		{
 			// Parse the connection string and return a reference to the storage account.
 			var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
@@ -109,7 +109,7 @@
 		static void CreateSharedAccessPolicy(CloudBlobClient blobClient, CloudBlobContainer blobContainer, string policyName)
 		{
 			// Create a new shared access policy and define its constraints.
-			var sharedPolicy = new SharedAccessBlobPolicy()
+			var sharedPolicy = new SharedAccessBlobPolicy
 			{
 				SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
 				Permissions = SharedAccessBlobPermissions.Write | SharedAccessBlobPermissions.List | SharedAccessBlobPermissions.Read

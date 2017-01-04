@@ -9,7 +9,7 @@
 
 	class Program
 	{
-		static void Main(string[] args)
+		static void Main()
 		{
 			const string ContainerSas =
 				@"https://factondevcontentblob.blob.core.windows.net/sascontainer?sv=2016-05-31&sr=c&sig=n7zHrHc8l8gcvzS1LRQ5YODho4OJLTFACIrLwD7QJ6Y%3D&se=2017-01-04T10%3A54%3A20Z&sp=wl";

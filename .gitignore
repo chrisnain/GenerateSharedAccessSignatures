@@ -243,3 +243,4 @@ ModelManifest.xml
 /GenerateSharedAccessSignatures/App.config
 /ConsumeSharedAccessSignatures/App.config
 /FileCompressor/App.config
+/SimpleFileWriter/App.config
